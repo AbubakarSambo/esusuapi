@@ -1,0 +1,10 @@
+{
+  "extends": "umi",
+  "rules": {
+    "no-console": ["warn", {
+      "allow": ["error"]
+    }],
+    "no-restricted-globals": [1],
+    "react/jsx-no-target-blank": 0
+  }
+}

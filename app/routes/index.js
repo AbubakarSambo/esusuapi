@@ -8,6 +8,7 @@ module.exports = function(app) {
     app.post('/login', user.login);
     app.post('/group',verifyToken, group.create);
     app.post('/group/join',verifyToken, group.join);
+    app.post('/group/start',verifyToken, group.start);
     app.get('/group/:code',verifyToken, group.getSingle);
     app.get('/group',verifyToken, group.getAll);
 }

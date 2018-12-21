@@ -18,7 +18,6 @@ exports.create = function (req,res ) {
                             return res.status(201).send({ token });
                         })
                         .catch(error => {
-                            console.log('fgg')
                             res.status(500).send(error);
                         })
                 }
@@ -27,7 +26,7 @@ exports.create = function (req,res ) {
                 }
             })
             .catch(err => {
-                console.log('err')
+                console.log('err',err)
             });
     }
     else {
