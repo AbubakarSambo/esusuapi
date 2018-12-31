@@ -30,7 +30,7 @@ exports.create = function (req, res) {
 
 exports.getSingle = function (req, res) {
     const code = req.params.code
-    Group.findOne({ code }).populate('admin').then((group) => {
+    Group.findOne({ code }).deepPopulate(['members', 'paymentSchedule', 'paymentSchedule.recipient', 'admin', 'user']).then((group) => {
         if (!group) return res.status(404).send({ message: 'No Such Group found.' });
         return res.status(200).send({ group });
     })
