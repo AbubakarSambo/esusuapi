@@ -35,6 +35,7 @@ exports.create = function (req,res ) {
 }
 
 exports.login = function (req, res) {
+    console.log('kkk')
     const { password, username } = req.body
     User.findOne({ username }).then((user) => {
         if (!user) return res.status(404).send({message: 'That Username does not exist'});

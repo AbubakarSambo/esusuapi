@@ -4,7 +4,6 @@ const Schema = mongoose.Schema;
 const ScheduleSchema = mongoose.Schema({ 
     recipient: { type: Schema.Types.ObjectId, ref: 'User' },
     date: Date,
-    cycles: [{ type: Schema.Types.ObjectId, ref: 'Cycle' }],
 }, {
     timestamps: true
 });

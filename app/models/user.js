@@ -9,6 +9,7 @@ const UserSchema = mongoose.Schema({
     password: String,
     creditScore: Number,
     bvn: String,
+    paid: Boolean
 }, {
     timestamps: true
 });
