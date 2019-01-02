@@ -13,7 +13,14 @@ const GroupSchema = mongoose.Schema({
     cycleStart: Date,
     code: String,
     members: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-    paymentSchedule : [{ type: Schema.Types.ObjectId, ref: 'PaymentSchedule' }]
+    paymentSchedule : [{
+        recipient: {type: Schema.Types.ObjectId, ref: 'User'},
+        date: Date,
+        details: [{
+            member: {type: Schema.Types.ObjectId, ref: 'User'},
+            paid: Boolean
+        }]
+      }]
 }, {
     timestamps: true
 });

@@ -14,10 +14,10 @@ padToFour = (number) => {
 
 exports.create = function (req, res) {
     User.findById(req.userId).then((user) => {
-        const { name, address, amount, ScheduleCount, scheduleType } = req.body
+        const { name, address, amount } = req.body
         Group.countDocuments().then((count) => {
             const code = this.padToFour(count)
-            let newGroup = new Group({ name, address, code, amount, ScheduleCount, scheduleType, admin: user })
+            let newGroup = new Group({ name, address, code, amount, admin: user })
             newGroup.save().then((createdGroup) => {
                 return res.status(201).send({ createdGroup });
             })
@@ -30,7 +30,7 @@ exports.create = function (req, res) {
 
 exports.getSingle = function (req, res) {
     const code = req.params.code
-    Group.findOne({ code }).deepPopulate(['members', 'paymentSchedule', 'paymentSchedule.recipient', 'admin', 'user']).then((group) => {
+    Group.findOne({ code }).populate(['members','paymentSchedule.recipient','paymentSchedule.details.member', 'admin']).then((group) => {
         if (!group) return res.status(404).send({ message: 'No Such Group found.' });
         return res.status(200).send({ group });
     })
@@ -62,53 +62,24 @@ exports.start = function (req, res) {
     let schedulesPromises = []
     User.findById(req.userId).then((user) => {
         Group.find({ code }).populate(['members']).then((singleGroup) => {
-            console.log(singleGroup)
-            let paymentSchedule = singleGroup[0].members.forEach((item, index) => {
-                let newSchedule = new PaymentSchedule({
-                    recipient: item,
+            let newSchedule = singleGroup[0].members.map((itema, index) => {
+                let scheduleDetails = singleGroup[0].members.filter((filtered) => {
+                    return filtered._id !== itema._id
+                }).map((filteredItem) => {
+                    return {
+                        member: filteredItem,
+                        paid: false
+                    }
+                })
+                return ({
+                    recipient: itema,
                     date: new Date(Date.now() + (28 * 24 * 60 * 60 * 1000) * (index)),
+                    details: scheduleDetails
                 })
-                schedulesPromises.push(newSchedule.save())
             })
-            Promise.all(schedulesPromises).then((promiseResult) => {
-                console.log(promiseResult)
-                Group.findOneAndUpdate({ code }, { paymentSchedule: promiseResult }).then((item) => {
-                    console.log('doneeee')
-                })
-
+            Group.findOneAndUpdate({ code }, { paymentSchedule: newSchedule }).then((item) => {
+                return res.status(200).send({item})
             })
-            // Group.findOneAndUpdate({ code }, { paymentSchedule }).then((item) => {
-            //     console.log('doneeee')
-            // })
-            // console.log(paymentSchedule)
         })
     })
-
-
-
-    // User.findById(req.userId).then((user) => {
-    //     Group.find({code}).then((singleGroup) => {
-    //         let { members, scheduleType, ScheduleCount } = singleGroup[0]
-    //         let cyclesPromises = []
-    //         let schedulesPromises = []
-    //         members.forEach((item,i) => {
-    //             let cycles = []
-    //             for(let j=0;j<members.length;j++){
-    //                 let cycle = new Cycle({ member: members[j], paid: false , datePaid: new Date()})
-    //                 cyclesPromises.push(cycle.save())
-    //             }
-    //             Promise.all(cyclesPromises).then((cyclesFromPromise) => {
-    //                 let paymentSchedule = new PaymentSchedule({recipient: members[i], date: new Date(), cycles: cyclesFromPromise})
-    //                 // schedulesPromises.push(paymentSchedule.save())
-    //                 paymentSchedule.save().then((schedules) => {
-    //                     Group.findOneAndUpdate({code},{paymentSchedule: schedules}).then((item) => {
-    //                         console.log('doneeee')
-    //                     })
-    //                 })
-    //             })
-    //         })
-    //     })
-    // }).catch(() => {
-    //     return res.status(400).send({message: 'Could not find User'})
-    // })
 };
