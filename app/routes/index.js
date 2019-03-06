@@ -11,4 +11,8 @@ module.exports = function(app) {
     app.post('/group/start',verifyToken, group.start);
     app.get('/group/:code',verifyToken, group.getSingle);
     app.get('/group',verifyToken, group.getAll);
+    app.get('/user/details',verifyToken, group.getUserDetails);
+    app.post('/api/makepayment', verifyToken, user.makePayment);
+    app.post('/api/callback/paystack', user.paystackCallback);
+
 }

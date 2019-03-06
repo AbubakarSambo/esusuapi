@@ -30,11 +30,21 @@ exports.create = function (req, res) {
 
 exports.getSingle = function (req, res) {
     const code = req.params.code
+    console.log(code)
     Group.findOne({ code }).populate(['members','paymentSchedule.recipient','paymentSchedule.details.member', 'admin']).then((group) => {
         if (!group) return res.status(404).send({ message: 'No Such Group found.' });
         return res.status(200).send({ group });
     })
-
+};
+exports.getUserDetails = function (req, res) {
+    User.findById(req.userId).then((user) => {
+        Group.findOne({members: user}).then((group) => {
+            if(group){
+                return res.status(200).send({ user,groupCode: group.code });
+            }
+            return res.status(200).send({ user,groupCode: null });
+        })
+    })
 };
 
 exports.getAll = function (req, res) {
