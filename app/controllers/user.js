@@ -24,25 +24,15 @@ confirmPayment = (reference) => {
         }
     })
 }
-
 exports.create = async function (req, res) {
     const { firstName, lastName, password, email, phone, bank, accountNumber } = req.body
     try {
         if (firstName && lastName && password && phone) {
-            console.log(bank)
-            const subAccountResponse = await this.createSubAccount({
-                business_name: `${firstName} ${lastName}`,
-                settlement_bank: bank,
-                account_number: accountNumber,
-                percentage_charge: 98.5
-            })
-            console.log(subAccountResponse.data)
-            if(subAccountResponse.data.status){
-                User.findOne({ email })
+            User.findOne({ email })
                 .then(user => {
                     if (!user) {
                         const hashedPassword = bcrypt.hashSync(password, 8)
-                        let newUser = new User({ firstName, lastName, password: hashedPassword, email, phone, subAccountCode: subAccountResponse.data.data.subaccount_code });
+                        let newUser = new User({ firstName, lastName, password: hashedPassword, email, phone });
                         newUser.save()
                             .then(created => {
                                 const token = jwt.sign({ id: created._id }, config.secretKey, { expiresIn: 86400 });
@@ -59,11 +49,8 @@ exports.create = async function (req, res) {
                 .catch(err => {
                     console.log('err', err)
                 });
-            }
-            else{
-                res.status(500).send({ message: "Could not create your subaccount buddy" });
-            }
-            
+
+
         }
         else {
             res.status(500).send({ message: "Missing required field" });
@@ -74,6 +61,56 @@ exports.create = async function (req, res) {
         return res.status(400).send(err)
     }
 }
+
+// exports.create = async function (req, res) {
+//     const { firstName, lastName, password, email, phone, bank, accountNumber } = req.body
+//     try {
+//         if (firstName && lastName && password && phone) {
+//             console.log(bank)
+//             const subAccountResponse = await this.createSubAccount({
+//                 business_name: `${firstName} ${lastName}`,
+//                 settlement_bank: bank,
+//                 account_number: accountNumber,
+//                 percentage_charge: 98.5
+//             })
+//             console.log(subAccountResponse.data)
+//             if(subAccountResponse.data.status){
+//                 User.findOne({ email })
+//                 .then(user => {
+//                     if (!user) {
+//                         const hashedPassword = bcrypt.hashSync(password, 8)
+//                         let newUser = new User({ firstName, lastName, password: hashedPassword, email, phone, subAccountCode: subAccountResponse.data.data.subaccount_code });
+//                         newUser.save()
+//                             .then(created => {
+//                                 const token = jwt.sign({ id: created._id }, config.secretKey, { expiresIn: 86400 });
+//                                 return res.status(201).send({ token });
+//                             })
+//                             .catch(error => {
+//                                 res.status(500).send(error);
+//                             })
+//                     }
+//                     else {
+//                         res.status(400).send({ message: "That email is in use" });
+//                     }
+//                 })
+//                 .catch(err => {
+//                     console.log('err', err)
+//                 });
+//             }
+//             else{
+//                 res.status(500).send({ message: "Could not create your subaccount buddy" });
+//             }
+
+//         }
+//         else {
+//             res.status(500).send({ message: "Missing required field" });
+//         }
+//     }
+//     catch (err) {
+//         console.log(err)
+//         return res.status(400).send(err)
+//     }
+// }
 
 exports.login = function (req, res) {
     const { password, email } = req.body
